@@ -23,6 +23,10 @@ npm run dev      # http://localhost:47321
 
 Other scripts: `npm run build` (type-check and production build), `npm run preview`, `npm run lint`.
 
+## Deploy to GitHub Pages
+
+`.github/workflows/deploy.yml` builds the site and publishes it to GitHub Pages on every push to `main`. In the GitHub repo, go to **Settings → Pages** and set **Source** to **GitHub Actions**. The site will be at `https://<your-username>.github.io/<repo-name>/`.
+
 ## How it works
 
 - `src/game/sim.ts` handles the physics: inverse-square gravity toward the sun, integrated with 4 sub-steps per frame, plus orbit counting (it adds up the angle swept around the sun) and merging planets by volume while keeping momentum.
