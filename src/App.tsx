@@ -14,6 +14,7 @@ import {
   type SizeKey,
   type Vec,
 } from './game/sim'
+import { drawCharacter } from './game/characters'
 import { sounds } from './game/sound'
 import sunFaceUrl from './assets/sun-face.png'
 
@@ -36,40 +37,6 @@ function makeStars(w: number, h: number): Star[] {
     r: Math.random() * 1.4 + 0.2,
     twinkle: Math.random() * Math.PI * 2,
   }))
-}
-
-function drawFace(ctx: CanvasRenderingContext2D, p: Planet, sun: Vec, t: number) {
-  if (p.r < 8) return
-  const nearSun = Math.hypot(p.x - sun.x, p.y - sun.y) < SUN_RADIUS + 90
-  const blink = Math.sin(t / 900 + p.id * 1.7) > 0.985
-  const eyeDx = p.r * 0.33
-  const eyeY = p.y - p.r * 0.15
-  const eyeR = Math.max(1.4, p.r * 0.12)
-  ctx.fillStyle = '#1b1240'
-  for (const side of [-1, 1]) {
-    ctx.beginPath()
-    if (blink) ctx.ellipse(p.x + side * eyeDx, eyeY, eyeR, eyeR * 0.25, 0, 0, Math.PI * 2)
-    else ctx.arc(p.x + side * eyeDx, eyeY, eyeR, 0, Math.PI * 2)
-    ctx.fill()
-  }
-  ctx.strokeStyle = '#1b1240'
-  ctx.lineWidth = Math.max(1.2, p.r * 0.09)
-  ctx.lineCap = 'round'
-  ctx.beginPath()
-  if (nearSun) {
-    ctx.arc(p.x, p.y + p.r * 0.32, p.r * 0.14, 0, Math.PI * 2)
-    ctx.fillStyle = '#1b1240'
-    ctx.fill()
-  } else {
-    ctx.arc(p.x, p.y + p.r * 0.1, p.r * 0.35, 0.2 * Math.PI, 0.8 * Math.PI)
-    ctx.stroke()
-  }
-  ctx.fillStyle = 'rgba(255,120,160,0.45)'
-  for (const side of [-1, 1]) {
-    ctx.beginPath()
-    ctx.arc(p.x + side * p.r * 0.55, p.y + p.r * 0.2, p.r * 0.13, 0, Math.PI * 2)
-    ctx.fill()
-  }
 }
 
 export default function App() {
@@ -254,15 +221,7 @@ export default function App() {
       for (const p of planets.current) {
         const age = Math.min(1, (now - p.born) / 250)
         const r = p.r * (0.5 + 0.5 * age)
-        const g = ctx.createRadialGradient(p.x - r * 0.4, p.y - r * 0.4, r * 0.1, p.x, p.y, r)
-        g.addColorStop(0, '#ffffff')
-        g.addColorStop(0.25, p.color)
-        g.addColorStop(1, p.color)
-        ctx.fillStyle = g
-        ctx.beginPath()
-        ctx.arc(p.x, p.y, r, 0, Math.PI * 2)
-        ctx.fill()
-        drawFace(ctx, { ...p, r }, s, now)
+        drawCharacter(ctx, p.kind, p.x, p.y, r, now, p.id)
       }
 
       for (const q of particles.current) {

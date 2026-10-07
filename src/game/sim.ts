@@ -1,3 +1,5 @@
+import { CHARACTERS, randomCharacter, type CharacterKind } from './characters'
+
 export type Vec = { x: number; y: number }
 
 export type Planet = {
@@ -7,6 +9,7 @@ export type Planet = {
   vx: number
   vy: number
   r: number
+  kind: CharacterKind
   color: string
   trail: Vec[]
   lastAngle: number
@@ -33,23 +36,12 @@ const SOFTENING = 400
 const MAX_TRAIL = 140
 const ESCAPE_DISTANCE = 2600
 
-export const PLANET_COLORS = [
-  '#ff6b9a',
-  '#ffb648',
-  '#5ee7a5',
-  '#5bc0ff',
-  '#b18cff',
-  '#ff8a5c',
-  '#f9f871',
-  '#4de1d2',
-]
-
 export const SIZES = { small: 9, medium: 15, big: 23 } as const
 export type SizeKey = keyof typeof SIZES
 
 let nextId = 1
 
-export function makePlanet(pos: Vec, vel: Vec, r: number, sun: Vec, color?: string): Planet {
+export function makePlanet(pos: Vec, vel: Vec, r: number, sun: Vec, kind = randomCharacter()): Planet {
   return {
     id: nextId++,
     x: pos.x,
@@ -57,7 +49,8 @@ export function makePlanet(pos: Vec, vel: Vec, r: number, sun: Vec, color?: stri
     vx: vel.x,
     vy: vel.y,
     r,
-    color: color ?? PLANET_COLORS[Math.floor(Math.random() * PLANET_COLORS.length)],
+    kind,
+    color: CHARACTERS[kind],
     trail: [],
     lastAngle: Math.atan2(pos.y - sun.y, pos.x - sun.x),
     sweep: 0,
