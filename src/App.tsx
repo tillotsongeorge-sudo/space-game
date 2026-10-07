@@ -15,6 +15,12 @@ import {
   type Vec,
 } from './game/sim'
 import { sounds } from './game/sound'
+import sunFaceUrl from './assets/sun-face.png'
+
+const sunFace = new Image()
+sunFace.src = sunFaceUrl
+// Square crop of the source photo centred on the face, in image pixels.
+const SUN_FACE_CROP = { x: 30, y: 15, size: 225 }
 
 const LAUNCH_SCALE = 2.2
 const MAX_PLANETS = 40
@@ -213,24 +219,22 @@ export default function App() {
       ctx.arc(s.x, s.y, SUN_RADIUS * 3.2, 0, Math.PI * 2)
       ctx.fill()
       const pulse = 1 + Math.sin(now / 500) * 0.03
-      const core = ctx.createRadialGradient(s.x - 10, s.y - 10, 4, s.x, s.y, SUN_RADIUS * pulse)
-      core.addColorStop(0, '#fff6c8')
-      core.addColorStop(0.6, '#ffc94a')
-      core.addColorStop(1, '#ff9a3c')
-      ctx.fillStyle = core
+      const sunR = SUN_RADIUS * pulse
+      ctx.fillStyle = '#ffc94a'
       ctx.beginPath()
-      ctx.arc(s.x, s.y, SUN_RADIUS * pulse, 0, Math.PI * 2)
+      ctx.arc(s.x, s.y, sunR, 0, Math.PI * 2)
       ctx.fill()
-      ctx.fillStyle = '#7a3b10'
-      ctx.beginPath()
-      ctx.arc(s.x - 12, s.y - 6, 3.5, 0, Math.PI * 2)
-      ctx.arc(s.x + 12, s.y - 6, 3.5, 0, Math.PI * 2)
-      ctx.fill()
-      ctx.strokeStyle = '#7a3b10'
+      if (sunFace.complete && sunFace.naturalWidth) {
+        ctx.save()
+        ctx.clip()
+        const c = SUN_FACE_CROP
+        ctx.drawImage(sunFace, c.x, c.y, c.size, c.size, s.x - sunR, s.y - sunR, sunR * 2, sunR * 2)
+        ctx.restore()
+      }
+      ctx.strokeStyle = '#ffb53c'
       ctx.lineWidth = 3
-      ctx.lineCap = 'round'
       ctx.beginPath()
-      ctx.arc(s.x, s.y + 2, 12, 0.2 * Math.PI, 0.8 * Math.PI)
+      ctx.arc(s.x, s.y, sunR, 0, Math.PI * 2)
       ctx.stroke()
 
       for (const p of planets.current) {
