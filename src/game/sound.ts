@@ -32,8 +32,10 @@ function tone(freq: number, duration: number, type: OscillatorType, volume: numb
 const PENTATONIC = [523.25, 587.33, 659.25, 783.99, 880, 1046.5]
 
 export const sounds = {
-  launch: () => tone(320, 0.25, 'sine', 0.15, 720),
-  orbit: (n: number) => tone(PENTATONIC[n % PENTATONIC.length], 0.5, 'triangle', 0.12),
+  pop: () => {
+    tone(500 + Math.random() * 300, 0.14, 'square', 0.07, 90)
+    tone(1400 + Math.random() * 400, 0.08, 'triangle', 0.08, 2600)
+  },
+  combo: (n: number) => tone(PENTATONIC[Math.min(n, PENTATONIC.length) - 1], 0.35, 'triangle', 0.12),
   sizzle: () => tone(220, 0.4, 'sawtooth', 0.06, 60),
-  merge: () => tone(180, 0.3, 'square', 0.06, 420),
 }

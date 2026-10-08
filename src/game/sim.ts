@@ -12,9 +12,6 @@ export type Planet = {
   kind: CharacterKind
   color: string
   trail: Vec[]
-  lastAngle: number
-  sweep: number
-  orbits: number
   born: number
 }
 
@@ -33,15 +30,14 @@ export type Popup = { x: number; y: number; text: string; life: number }
 export const SUN_RADIUS = 38
 export const GM = 9_000_000
 const SOFTENING = 400
-const MAX_TRAIL = 140
+const MAX_TRAIL = 90
 const ESCAPE_DISTANCE = 2600
 
 export const SIZES = { small: 9, medium: 15, big: 23 } as const
-export type SizeKey = keyof typeof SIZES
 
 let nextId = 1
 
-export function makePlanet(pos: Vec, vel: Vec, r: number, sun: Vec, kind = randomCharacter()): Planet {
+export function makePlanet(pos: Vec, vel: Vec, r: number, kind = randomCharacter()): Planet {
   return {
     id: nextId++,
     x: pos.x,
@@ -52,9 +48,6 @@ export function makePlanet(pos: Vec, vel: Vec, r: number, sun: Vec, kind = rando
     kind,
     color: CHARACTERS[kind],
     trail: [],
-    lastAngle: Math.atan2(pos.y - sun.y, pos.x - sun.x),
-    sweep: 0,
-    orbits: 0,
     born: performance.now(),
   }
 }
@@ -76,32 +69,10 @@ function accel(x: number, y: number, sun: Vec): Vec {
   return { x: dx * inv, y: dy * inv }
 }
 
-export function predictPath(pos: Vec, vel: Vec, sun: Vec, seconds = 3, steps = 180): Vec[] {
-  const pts: Vec[] = []
-  let { x, y } = pos
-  let vx = vel.x
-  let vy = vel.y
-  const dt = seconds / steps
-  for (let i = 0; i < steps; i++) {
-    const a = accel(x, y, sun)
-    vx += a.x * dt
-    vy += a.y * dt
-    x += vx * dt
-    y += vy * dt
-    pts.push({ x, y })
-    if (Math.hypot(x - sun.x, y - sun.y) < SUN_RADIUS) break
-  }
-  return pts
-}
-
-export type StepEvents = {
-  sunHits: Planet[]
-  merges: { a: Planet; b: Planet; at: Vec }[]
-  orbitsCompleted: Planet[]
-}
+export type StepEvents = { sunHits: Planet[] }
 
 export function step(planets: Planet[], sun: Vec, dt: number, trails: boolean): { planets: Planet[]; events: StepEvents } {
-  const events: StepEvents = { sunHits: [], merges: [], orbitsCompleted: [] }
+  const events: StepEvents = { sunHits: [] }
   const SUB = 4
   const h = dt / SUB
 
@@ -112,18 +83,6 @@ export function step(planets: Planet[], sun: Vec, dt: number, trails: boolean): 
       p.vy += a.y * h
       p.x += p.vx * h
       p.y += p.vy * h
-    }
-
-    const ang = Math.atan2(p.y - sun.y, p.x - sun.x)
-    let delta = ang - p.lastAngle
-    if (delta > Math.PI) delta -= Math.PI * 2
-    if (delta < -Math.PI) delta += Math.PI * 2
-    p.sweep += delta
-    p.lastAngle = ang
-    if (Math.abs(p.sweep) >= Math.PI * 2) {
-      p.sweep -= Math.sign(p.sweep) * Math.PI * 2
-      p.orbits++
-      events.orbitsCompleted.push(p)
     }
 
     if (trails) {
@@ -145,30 +104,15 @@ export function step(planets: Planet[], sun: Vec, dt: number, trails: boolean): 
     }
   }
 
-  for (let i = 0; i < planets.length; i++) {
-    const a = planets[i]
-    if (dead.has(a.id)) continue
-    for (let j = i + 1; j < planets.length; j++) {
-      const b = planets[j]
-      if (dead.has(b.id)) continue
-      if (Math.hypot(a.x - b.x, a.y - b.y) < (a.r + b.r) * 0.85) {
-        const ma = a.r ** 3
-        const mb = b.r ** 3
-        const m = ma + mb
-        const big = ma >= mb ? a : b
-        const small = big === a ? b : a
-        big.vx = (a.vx * ma + b.vx * mb) / m
-        big.vy = (a.vy * ma + b.vy * mb) / m
-        big.x = (a.x * ma + b.x * mb) / m
-        big.y = (a.y * ma + b.y * mb) / m
-        big.r = Math.min(Math.cbrt(m), 40)
-        dead.add(small.id)
-        events.merges.push({ a: big, b: small, at: { x: big.x, y: big.y } })
-      }
-    }
-  }
-
   return { planets: planets.filter((p) => !dead.has(p.id)), events }
+}
+
+// Hit area is padded so small critters are still easy to tap with a finger.
+export function pickAt(planets: Planet[], pt: Vec): Planet | undefined {
+  for (let i = planets.length - 1; i >= 0; i--) {
+    const p = planets[i]
+    if (Math.hypot(p.x - pt.x, p.y - pt.y) < Math.max(p.r * 1.3, 24)) return p
+  }
 }
 
 export function burst(at: Vec, color: string, count: number, speed: number): Particle[] {

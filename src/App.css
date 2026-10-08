@@ -14,7 +14,7 @@
   height: 100%;
   display: block;
   touch-action: none;
-  cursor: crosshair;
+  cursor: pointer;
 }
 
 .hud {
@@ -171,39 +171,9 @@ button {
   padding: 0;
 }
 
-.btn.danger:hover {
-  background: rgba(255, 90, 90, 0.3);
-}
-
-.btn:focus-visible,
-.size-btn:focus-visible {
+.btn:focus-visible {
   outline: 3px solid #ffd36b;
   outline-offset: 2px;
-}
-
-.size-btn {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.06);
-  display: grid;
-  place-items: center;
-  transition: transform 0.1s;
-}
-
-.size-btn:active {
-  transform: scale(0.92);
-}
-
-.size-btn.active {
-  background: rgba(94, 231, 165, 0.25);
-  box-shadow: inset 0 0 0 2px #5ee7a5;
-}
-
-.dot {
-  display: block;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #fff, #5bc0ff 40%);
 }
 
 @media (max-width: 640px) {
