@@ -5,9 +5,12 @@ export const CHARACTERS = {
   vampire: '#e0304e',
   bat: '#ff5ca8',
   skull: '#7ee0ff',
-  mummy: '#d9c39a',
-  witch: '#7ed957',
   cat: '#ffd23f',
+  leopard: '#f0a83c',
+  elephant: '#9fb3d1',
+  snowTiger: '#bfe4ff',
+  dog: '#c98a4b',
+  giraffe: '#ffe08a',
 } as const
 
 export type CharacterKind = keyof typeof CHARACTERS
@@ -269,79 +272,6 @@ function skull(ctx: Ctx, x: number, y: number, r: number, blink: boolean) {
   ctx.stroke()
 }
 
-function mummy(ctx: Ctx, x: number, y: number, r: number, blink: boolean, t: number, seed: number) {
-  const sway = Math.sin(t / 220 + seed) * r * 0.15
-  ctx.strokeStyle = '#e8dcc0'
-  ctx.lineWidth = Math.max(1.5, r * 0.16)
-  ctx.lineCap = 'round'
-  ctx.beginPath()
-  ctx.moveTo(x + r * 0.45, y + r * 0.6)
-  ctx.quadraticCurveTo(x + r * 0.8 + sway, y + r * 0.9, x + r * 0.6 + sway, y + r * 1.25)
-  ctx.stroke()
-  ctx.fillStyle = '#e8dcc0'
-  ctx.beginPath()
-  ctx.arc(x, y, r * 0.85, 0, Math.PI * 2)
-  ctx.fill()
-  ctx.save()
-  ctx.clip()
-  ctx.strokeStyle = '#c4ad82'
-  ctx.lineWidth = Math.max(0.8, r * 0.06)
-  for (const [y0, tilt] of [
-    [-0.7, 0.15],
-    [-0.45, -0.12],
-    [0.3, 0.1],
-    [0.55, -0.15],
-    [0.78, 0.08],
-  ]) {
-    ctx.beginPath()
-    ctx.moveTo(x - r, y + (y0 - tilt) * r)
-    ctx.lineTo(x + r, y + (y0 + tilt) * r)
-    ctx.stroke()
-  }
-  ctx.fillStyle = '#3a2a1a'
-  ctx.fillRect(x - r, y - r * 0.28, r * 2, r * 0.42)
-  ctx.restore()
-  eye(ctx, x - r * 0.3, y - r * 0.07, r * 0.2, blink)
-  eye(ctx, x + r * 0.32, y - r * 0.07, r * 0.14, blink)
-}
-
-function witch(ctx: Ctx, x: number, y: number, r: number, blink: boolean) {
-  ctx.fillStyle = '#9b6bff'
-  for (const s of [-1, 1]) {
-    ctx.beginPath()
-    ctx.ellipse(x + s * r * 0.68, y + r * 0.2, r * 0.22, r * 0.5, s * 0.25, 0, Math.PI * 2)
-    ctx.fill()
-  }
-  ctx.fillStyle = CHARACTERS.witch
-  ctx.beginPath()
-  ctx.arc(x, y + r * 0.15, r * 0.72, 0, Math.PI * 2)
-  ctx.fill()
-  ctx.fillStyle = '#2b1f45'
-  ctx.beginPath()
-  ctx.moveTo(x - r * 0.55, y - r * 0.4)
-  ctx.quadraticCurveTo(x - r * 0.1, y - r * 0.9, x + r * 0.5, y - r * 1.4)
-  ctx.quadraticCurveTo(x + r * 0.2, y - r * 0.9, x + r * 0.55, y - r * 0.4)
-  ctx.closePath()
-  ctx.fill()
-  ctx.fillStyle = '#ff8a1f'
-  ctx.fillRect(x - r * 0.48, y - r * 0.62, r * 0.98, r * 0.14)
-  ctx.fillStyle = '#2b1f45'
-  ctx.beginPath()
-  ctx.ellipse(x, y - r * 0.42, r * 1.05, r * 0.18, 0, 0, Math.PI * 2)
-  ctx.fill()
-  for (const s of [-1, 1]) eye(ctx, x + s * r * 0.27, y + r * 0.02, r * 0.15, blink)
-  ctx.fillStyle = '#5bb83a'
-  ctx.beginPath()
-  ctx.ellipse(x + r * 0.04, y + r * 0.26, r * 0.11, r * 0.16, -0.3, 0, Math.PI * 2)
-  ctx.fill()
-  ctx.strokeStyle = '#2b1f45'
-  ctx.lineWidth = Math.max(1, r * 0.07)
-  ctx.lineCap = 'round'
-  ctx.beginPath()
-  ctx.arc(x, y + r * 0.28, r * 0.32, 0.25 * Math.PI, 0.75 * Math.PI)
-  ctx.stroke()
-}
-
 function cat(ctx: Ctx, x: number, y: number, r: number, blink: boolean) {
   ctx.fillStyle = '#2a2533'
   ctx.strokeStyle = '#8a7bb0'
@@ -414,6 +344,265 @@ function cat(ctx: Ctx, x: number, y: number, r: number, blink: boolean) {
   ctx.stroke()
 }
 
+type BigCatLook = {
+  fur: string
+  outline: string
+  earInner: string
+  muzzle: string
+  iris: string
+  nose: string
+  markings: (ctx: Ctx, x: number, y: number, r: number) => void
+}
+
+const LEOPARD: BigCatLook = {
+  fur: '#f2c25a',
+  outline: '#c98a2b',
+  earInner: '#c98a2b',
+  muzzle: '#fff1d0',
+  iris: '#3c7d2f',
+  nose: '#5a2e1a',
+  markings: (ctx, x, y, r) => {
+    ctx.strokeStyle = '#4a2e12'
+    ctx.fillStyle = '#4a2e12'
+    ctx.lineWidth = Math.max(0.8, r * 0.05)
+    for (const [u, v] of [
+      [-0.45, -0.3],
+      [0.45, -0.32],
+      [-0.18, -0.58],
+      [0.2, -0.55],
+      [0, -0.35],
+      [-0.62, 0.12],
+      [0.62, 0.1],
+    ]) {
+      ctx.beginPath()
+      ctx.arc(x + u * r, y + v * r, r * 0.09, 0.3, Math.PI * 1.7)
+      ctx.stroke()
+      ctx.beginPath()
+      ctx.arc(x + u * r, y + v * r, r * 0.03, 0, Math.PI * 2)
+      ctx.fill()
+    }
+  },
+}
+
+const SNOW_TIGER: BigCatLook = {
+  fur: '#f4f6fb',
+  outline: '#9aa6c4',
+  earInner: '#ffc2d4',
+  muzzle: '#ffffff',
+  iris: '#3a8bd6',
+  nose: '#ff8fb3',
+  markings: (ctx, x, y, r) => {
+    ctx.fillStyle = '#2b2d42'
+    const stripe = (x0: number, y0: number, x1: number, y1: number, w: number) => {
+      const nx = -(y1 - y0)
+      const ny = x1 - x0
+      const len = Math.hypot(nx, ny) || 1
+      ctx.beginPath()
+      ctx.moveTo(x + (x0 + (nx / len) * w) * r, y + (y0 + (ny / len) * w) * r)
+      ctx.lineTo(x + x1 * r, y + y1 * r)
+      ctx.lineTo(x + (x0 - (nx / len) * w) * r, y + (y0 - (ny / len) * w) * r)
+      ctx.closePath()
+      ctx.fill()
+    }
+    stripe(0, -0.8, 0, -0.45, 0.08)
+    stripe(-0.22, -0.75, -0.16, -0.48, 0.06)
+    stripe(0.22, -0.75, 0.16, -0.48, 0.06)
+    for (const s of [-1, 1]) {
+      stripe(s * 0.82, -0.05, s * 0.5, 0.0, 0.07)
+      stripe(s * 0.8, 0.22, s * 0.52, 0.2, 0.06)
+    }
+  },
+}
+
+function bigCat(ctx: Ctx, x: number, y: number, r: number, blink: boolean, look: BigCatLook) {
+  ctx.lineWidth = Math.max(1, r * 0.05)
+  for (const s of [-1, 1]) {
+    ctx.fillStyle = look.fur
+    ctx.strokeStyle = look.outline
+    ctx.beginPath()
+    ctx.arc(x + s * r * 0.55, y - r * 0.62, r * 0.24, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.stroke()
+    ctx.fillStyle = look.earInner
+    ctx.beginPath()
+    ctx.arc(x + s * r * 0.55, y - r * 0.62, r * 0.12, 0, Math.PI * 2)
+    ctx.fill()
+  }
+  ctx.fillStyle = look.fur
+  ctx.strokeStyle = look.outline
+  ctx.lineWidth = Math.max(1, r * 0.05)
+  ctx.beginPath()
+  ctx.arc(x, y, r * 0.85, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.stroke()
+  ctx.save()
+  ctx.clip()
+  look.markings(ctx, x, y, r)
+  ctx.restore()
+  ctx.fillStyle = look.muzzle
+  for (const s of [-1, 1]) {
+    ctx.beginPath()
+    ctx.ellipse(x + s * r * 0.17, y + r * 0.33, r * 0.24, r * 0.2, 0, 0, Math.PI * 2)
+    ctx.fill()
+  }
+  for (const s of [-1, 1]) eye(ctx, x + s * r * 0.32, y - r * 0.12, r * 0.16, blink, look.iris)
+  ctx.fillStyle = look.nose
+  ctx.beginPath()
+  ctx.moveTo(x - r * 0.12, y + r * 0.14)
+  ctx.lineTo(x + r * 0.12, y + r * 0.14)
+  ctx.lineTo(x, y + r * 0.28)
+  ctx.closePath()
+  ctx.fill()
+  ctx.strokeStyle = '#3a2a1a'
+  ctx.lineWidth = Math.max(0.8, r * 0.045)
+  ctx.lineCap = 'round'
+  ctx.beginPath()
+  ctx.moveTo(x, y + r * 0.28)
+  ctx.quadraticCurveTo(x - r * 0.08, y + r * 0.44, x - r * 0.18, y + r * 0.36)
+  ctx.moveTo(x, y + r * 0.28)
+  ctx.quadraticCurveTo(x + r * 0.08, y + r * 0.44, x + r * 0.18, y + r * 0.36)
+  ctx.stroke()
+}
+
+function elephant(ctx: Ctx, x: number, y: number, r: number, blink: boolean) {
+  const skin = '#a9bcd8'
+  for (const s of [-1, 1]) {
+    ctx.fillStyle = '#93a8c8'
+    ctx.beginPath()
+    ctx.ellipse(x + s * r * 0.72, y - r * 0.05, r * 0.48, r * 0.6, s * 0.2, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.fillStyle = '#f3b6c8'
+    ctx.beginPath()
+    ctx.ellipse(x + s * r * 0.76, y - r * 0.02, r * 0.3, r * 0.42, s * 0.2, 0, Math.PI * 2)
+    ctx.fill()
+  }
+  ctx.fillStyle = skin
+  ctx.beginPath()
+  ctx.arc(x, y - r * 0.05, r * 0.68, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.strokeStyle = skin
+  ctx.lineWidth = r * 0.26
+  ctx.lineCap = 'round'
+  ctx.beginPath()
+  ctx.moveTo(x, y + r * 0.1)
+  ctx.quadraticCurveTo(x - r * 0.05, y + r * 0.75, x + r * 0.15, y + r * 0.88)
+  ctx.quadraticCurveTo(x + r * 0.35, y + r * 0.95, x + r * 0.4, y + r * 0.75)
+  ctx.stroke()
+  ctx.strokeStyle = '#ffffff'
+  ctx.lineWidth = Math.max(1, r * 0.08)
+  for (const s of [-1, 1]) {
+    ctx.beginPath()
+    ctx.moveTo(x + s * r * 0.24, y + r * 0.35)
+    ctx.quadraticCurveTo(x + s * r * 0.3, y + r * 0.55, x + s * r * 0.18, y + r * 0.6)
+    ctx.stroke()
+  }
+  for (const s of [-1, 1]) eye(ctx, x + s * r * 0.26, y - r * 0.15, r * 0.14, blink)
+  ctx.fillStyle = 'rgba(255,120,160,0.45)'
+  for (const s of [-1, 1]) {
+    ctx.beginPath()
+    ctx.arc(x + s * r * 0.42, y + r * 0.12, r * 0.1, 0, Math.PI * 2)
+    ctx.fill()
+  }
+}
+
+function dog(ctx: Ctx, x: number, y: number, r: number, blink: boolean) {
+  ctx.fillStyle = CHARACTERS.dog
+  ctx.beginPath()
+  ctx.arc(x, y, r * 0.8, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.fillStyle = '#8a5a2b'
+  ctx.beginPath()
+  ctx.ellipse(x + r * 0.3, y - r * 0.18, r * 0.24, r * 0.22, 0, 0, Math.PI * 2)
+  ctx.fill()
+  for (const s of [-1, 1]) {
+    ctx.beginPath()
+    ctx.ellipse(x + s * r * 0.72, y + r * 0.02, r * 0.22, r * 0.5, s * -0.35, 0, Math.PI * 2)
+    ctx.fill()
+  }
+  ctx.fillStyle = '#f3dcc0'
+  ctx.beginPath()
+  ctx.ellipse(x, y + r * 0.33, r * 0.38, r * 0.28, 0, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.fillStyle = '#ff7aa2'
+  ctx.beginPath()
+  ctx.ellipse(x + r * 0.08, y + r * 0.6, r * 0.11, r * 0.16, 0, 0, Math.PI * 2)
+  ctx.fill()
+  for (const s of [-1, 1]) eye(ctx, x + s * r * 0.3, y - r * 0.15, r * 0.15, blink)
+  ctx.fillStyle = '#1b1240'
+  ctx.beginPath()
+  ctx.ellipse(x, y + r * 0.18, r * 0.15, r * 0.1, 0, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.strokeStyle = '#1b1240'
+  ctx.lineWidth = Math.max(0.8, r * 0.05)
+  ctx.lineCap = 'round'
+  ctx.beginPath()
+  ctx.moveTo(x, y + r * 0.27)
+  ctx.lineTo(x, y + r * 0.38)
+  ctx.quadraticCurveTo(x - r * 0.12, y + r * 0.5, x - r * 0.22, y + r * 0.4)
+  ctx.moveTo(x, y + r * 0.38)
+  ctx.quadraticCurveTo(x + r * 0.12, y + r * 0.5, x + r * 0.22, y + r * 0.4)
+  ctx.stroke()
+}
+
+function giraffe(ctx: Ctx, x: number, y: number, r: number, blink: boolean) {
+  const fur = '#ffd36b'
+  ctx.strokeStyle = '#a0662b'
+  ctx.lineWidth = Math.max(1.2, r * 0.1)
+  ctx.lineCap = 'round'
+  for (const s of [-1, 1]) {
+    ctx.beginPath()
+    ctx.moveTo(x + s * r * 0.18, y - r * 0.55)
+    ctx.lineTo(x + s * r * 0.26, y - r * 1.0)
+    ctx.stroke()
+  }
+  ctx.fillStyle = '#7a4a1f'
+  for (const s of [-1, 1]) {
+    ctx.beginPath()
+    ctx.arc(x + s * r * 0.26, y - r * 1.02, r * 0.11, 0, Math.PI * 2)
+    ctx.fill()
+  }
+  ctx.fillStyle = fur
+  for (const s of [-1, 1]) {
+    ctx.beginPath()
+    ctx.ellipse(x + s * r * 0.62, y - r * 0.42, r * 0.26, r * 0.11, s * 0.4, 0, Math.PI * 2)
+    ctx.fill()
+  }
+  ctx.beginPath()
+  ctx.ellipse(x, y - r * 0.08, r * 0.58, r * 0.66, 0, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.save()
+  ctx.clip()
+  ctx.fillStyle = '#c9822b'
+  for (const [u, v, w] of [
+    [-0.42, -0.4, 0.16],
+    [0.38, -0.5, 0.13],
+    [0.05, -0.62, 0.11],
+    [-0.5, 0.1, 0.13],
+    [0.52, 0.0, 0.15],
+  ]) {
+    ctx.beginPath()
+    ctx.ellipse(x + u * r, y + v * r, w * r, w * r * 0.8, u, 0, Math.PI * 2)
+    ctx.fill()
+  }
+  ctx.restore()
+  ctx.fillStyle = '#ffe8b8'
+  ctx.beginPath()
+  ctx.ellipse(x, y + r * 0.42, r * 0.46, r * 0.32, 0, 0, Math.PI * 2)
+  ctx.fill()
+  for (const s of [-1, 1]) eye(ctx, x + s * r * 0.24, y - r * 0.18, r * 0.14, blink)
+  ctx.fillStyle = '#7a4a1f'
+  for (const s of [-1, 1]) {
+    ctx.beginPath()
+    ctx.arc(x + s * r * 0.15, y + r * 0.36, r * 0.05, 0, Math.PI * 2)
+    ctx.fill()
+  }
+  ctx.strokeStyle = '#7a4a1f'
+  ctx.lineWidth = Math.max(0.8, r * 0.05)
+  ctx.beginPath()
+  ctx.arc(x, y + r * 0.4, r * 0.22, 0.25 * Math.PI, 0.75 * Math.PI)
+  ctx.stroke()
+}
+
 export function drawCharacter(ctx: Ctx, kind: CharacterKind, x: number, y: number, r: number, t: number, seed: number) {
   const blink = Math.sin(t / 900 + seed * 1.7) > 0.985
   switch (kind) {
@@ -429,11 +618,17 @@ export function drawCharacter(ctx: Ctx, kind: CharacterKind, x: number, y: numbe
       return bat(ctx, x, y, r, blink, t, seed)
     case 'skull':
       return skull(ctx, x, y, r, blink)
-    case 'mummy':
-      return mummy(ctx, x, y, r, blink, t, seed)
-    case 'witch':
-      return witch(ctx, x, y, r, blink)
     case 'cat':
       return cat(ctx, x, y, r, blink)
+    case 'leopard':
+      return bigCat(ctx, x, y, r, blink, LEOPARD)
+    case 'snowTiger':
+      return bigCat(ctx, x, y, r, blink, SNOW_TIGER)
+    case 'elephant':
+      return elephant(ctx, x, y, r, blink)
+    case 'dog':
+      return dog(ctx, x, y, r, blink)
+    case 'giraffe':
+      return giraffe(ctx, x, y, r, blink)
   }
 }

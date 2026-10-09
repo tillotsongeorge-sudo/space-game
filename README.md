@@ -1,6 +1,6 @@
 # Orbit Playground
 
-A Halloween tapping game for kids. Spooky critters (pumpkins, spiders, ghosts, vampires, bats, skulls, mummies, witches and black cats) appear on their own and orbit the sun. Tap them to make them explode.
+A tapping game for kids. Critters (pumpkins, spiders, ghosts, vampires, bats, skulls, black cats, leopards, snow tigers, elephants, dogs and giraffes) appear on their own and orbit the sun. Tap them to make them explode.
 
 ## How to play
 

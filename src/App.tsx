@@ -338,7 +338,7 @@ export default function App() {
         ref={canvasRef}
         className="sky"
         onPointerDown={onPointerDown}
-        aria-label="Space. Tap the spooky critters orbiting the sun to pop them."
+        aria-label="Space. Tap the critters orbiting the sun to pop them."
       />
 
       <header className="hud">
@@ -352,7 +352,7 @@ export default function App() {
 
       {!hasPopped && (
         <div className="hint" aria-live="polite">
-          <p className="hint-big">Tap the spooky critters to pop them!</p>
+          <p className="hint-big">Tap the critters to pop them!</p>
           <p>Little ones are worth more. Pop them fast for a combo!</p>
         </div>
       )}
